@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/health")
 public class HealthController {
 
-    @GetMapping("/health")
+    @GetMapping
     public ResponseEntity<HealthResponseDTO> health() {
         HealthResponseDTO response = new HealthResponseDTO();
         response.setStatus("UP");

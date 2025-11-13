@@ -13,9 +13,10 @@ The Master Data module manages all configurable reference data used across the T
 3. [Repository Layer (JDBC)](#repository-layer-jdbc)
 4. [Service Layer](#service-layer)
 5. [Controller Layer (REST APIs)](#controller-layer-rest-apis)
-6. [Validation & Error Handling](#validation--error-handling)
-7. [Testing Strategy](#testing-strategy)
-8. [Implementation Steps](#implementation-steps)
+6. [API Contract Details](#api-contract-details)
+7. [Validation & Error Handling](#validation--error-handling)
+8. [Testing Strategy](#testing-strategy)
+9. [Implementation Steps](#implementation-steps)
 
 ---
 
@@ -1131,6 +1132,1502 @@ public class BranchController {
         branchService.deleteBranch(id);
         return ResponseEntity.noContent().build();
     }
+}
+```
+
+---
+
+## API Contract Details
+
+### Branches API
+
+#### 1. Get All Branches
+
+**Endpoint:** `GET /api/master/branches`
+
+**Query Parameters:**
+- `includeInactive` (optional, boolean, default: `false`) - Include inactive branches in response
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+[
+  {
+    "id": 1,
+    "code": "BR001",
+    "name": "Main Branch",
+    "address": "123 Main Street",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "pincode": "400001",
+    "phone": "+91-22-12345678",
+    "email": "main@trustapp.com",
+    "contactPerson": "John Doe",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  }
+]
+```
+
+#### 2. Get Branch by ID
+
+**Endpoint:** `GET /api/master/branches/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Branch ID
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "id": 1,
+  "code": "BR001",
+  "name": "Main Branch",
+  "address": "123 Main Street",
+  "city": "Mumbai",
+  "state": "Maharashtra",
+  "pincode": "400001",
+  "phone": "+91-22-12345678",
+  "email": "main@trustapp.com",
+  "contactPerson": "John Doe",
+  "isActive": true,
+  "createdAt": "2024-01-15T10:30:00",
+  "updatedAt": "2024-01-15T10:30:00"
+}
+```
+
+**Error Response:** `404 Not Found`
+```json
+{
+  "error": "Resource Not Found",
+  "message": "Branch not found with id: 999"
+}
+```
+
+#### 3. Create Branch
+
+**Endpoint:** `POST /api/master/branches`
+
+**Request Headers:**
+- `Content-Type: application/json`
+- `Authorization: Bearer {token}`
+
+**Request Body:**
+```json
+{
+  "code": "BR002",
+  "name": "Secondary Branch",
+  "address": "456 Park Avenue",
+  "city": "Delhi",
+  "state": "Delhi",
+  "pincode": "110001",
+  "phone": "+91-11-87654321",
+  "email": "secondary@trustapp.com",
+  "contactPerson": "Jane Smith",
+  "isActive": true
+}
+```
+
+**Response:** `201 Created`
+
+**Response Body:**
+```json
+{
+  "id": 2,
+  "code": "BR002",
+  "name": "Secondary Branch",
+  "address": "456 Park Avenue",
+  "city": "Delhi",
+  "state": "Delhi",
+  "pincode": "110001",
+  "phone": "+91-11-87654321",
+  "email": "secondary@trustapp.com",
+  "contactPerson": "Jane Smith",
+  "isActive": true,
+  "createdAt": "2024-01-16T14:20:00",
+  "updatedAt": "2024-01-16T14:20:00"
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` - Validation Error
+```json
+{
+  "error": "Validation Failed",
+  "fieldErrors": {
+    "code": "Branch code is required",
+    "name": "Branch name is required",
+    "email": "Invalid email format"
+  }
+}
+```
+
+`409 Conflict` - Duplicate Code
+```json
+{
+  "error": "Duplicate Resource",
+  "message": "Branch code already exists: BR001"
+}
+```
+
+#### 4. Update Branch
+
+**Endpoint:** `PUT /api/master/branches/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Branch ID
+
+**Request Headers:**
+- `Content-Type: application/json`
+- `Authorization: Bearer {token}`
+
+**Request Body:**
+```json
+{
+  "code": "BR002",
+  "name": "Updated Branch Name",
+  "address": "456 Park Avenue",
+  "city": "Delhi",
+  "state": "Delhi",
+  "pincode": "110001",
+  "phone": "+91-11-87654321",
+  "email": "updated@trustapp.com",
+  "contactPerson": "Jane Smith",
+  "isActive": true
+}
+```
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "id": 2,
+  "code": "BR002",
+  "name": "Updated Branch Name",
+  "address": "456 Park Avenue",
+  "city": "Delhi",
+  "state": "Delhi",
+  "pincode": "110001",
+  "phone": "+91-11-87654321",
+  "email": "updated@trustapp.com",
+  "contactPerson": "Jane Smith",
+  "isActive": true,
+  "createdAt": "2024-01-16T14:20:00",
+  "updatedAt": "2024-01-16T15:30:00"
+}
+```
+
+#### 5. Delete Branch
+
+**Endpoint:** `DELETE /api/master/branches/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Branch ID
+
+**Response:** `204 No Content`
+
+**Error Response:** `404 Not Found`
+```json
+{
+  "error": "Resource Not Found",
+  "message": "Branch not found with id: 999"
+}
+```
+
+---
+
+### Donation Purposes API
+
+#### 1. Get All Donation Purposes
+
+**Endpoint:** `GET /api/master/donation-purposes`
+
+**Query Parameters:**
+- `includeInactive` (optional, boolean, default: `false`) - Include inactive purposes
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+[
+  {
+    "id": 1,
+    "code": "DP001",
+    "name": "Education",
+    "description": "Donations for educational purposes",
+    "displayOrder": 1,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  },
+  {
+    "id": 2,
+    "code": "DP002",
+    "name": "Healthcare",
+    "description": "Donations for healthcare purposes",
+    "displayOrder": 2,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  }
+]
+```
+
+#### 2. Get Donation Purpose by ID
+
+**Endpoint:** `GET /api/master/donation-purposes/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Purpose ID
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "id": 1,
+  "code": "DP001",
+  "name": "Education",
+  "description": "Donations for educational purposes",
+  "displayOrder": 1,
+  "isActive": true,
+  "createdAt": "2024-01-15T10:30:00",
+  "updatedAt": "2024-01-15T10:30:00"
+}
+```
+
+#### 3. Create Donation Purpose
+
+**Endpoint:** `POST /api/master/donation-purposes`
+
+**Request Headers:**
+- `Content-Type: application/json`
+- `Authorization: Bearer {token}`
+
+**Request Body:**
+```json
+{
+  "code": "DP003",
+  "name": "Relief Work",
+  "description": "Donations for disaster relief and emergency assistance",
+  "displayOrder": 3,
+  "isActive": true
+}
+```
+
+**Response:** `201 Created`
+
+**Response Body:**
+```json
+{
+  "id": 3,
+  "code": "DP003",
+  "name": "Relief Work",
+  "description": "Donations for disaster relief and emergency assistance",
+  "displayOrder": 3,
+  "isActive": true,
+  "createdAt": "2024-01-16T14:20:00",
+  "updatedAt": "2024-01-16T14:20:00"
+}
+```
+
+#### 4. Update Donation Purpose
+
+**Endpoint:** `PUT /api/master/donation-purposes/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Purpose ID
+
+**Request Body:**
+```json
+{
+  "code": "DP003",
+  "name": "Updated Relief Work",
+  "description": "Updated description",
+  "displayOrder": 3,
+  "isActive": true
+}
+```
+
+**Response:** `200 OK`
+
+#### 5. Delete Donation Purpose
+
+**Endpoint:** `DELETE /api/master/donation-purposes/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Purpose ID
+
+**Response:** `204 No Content`
+
+**Error Response:** `400 Bad Request` - If sub-categories exist
+```json
+{
+  "error": "Validation Failed",
+  "message": "Cannot delete purpose with existing sub-categories"
+}
+```
+
+---
+
+### Donation Sub-Categories API
+
+#### 1. Get All Donation Sub-Categories
+
+**Endpoint:** `GET /api/master/donation-sub-categories`
+
+**Query Parameters:**
+- `purposeId` (optional, Long) - Filter by purpose ID
+- `includeInactive` (optional, boolean, default: `false`) - Include inactive sub-categories
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+[
+  {
+    "id": 1,
+    "purposeId": 1,
+    "code": "DSC001",
+    "name": "School Fees",
+    "description": "Donations for school fees",
+    "displayOrder": 1,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  },
+  {
+    "id": 2,
+    "purposeId": 1,
+    "code": "DSC002",
+    "name": "Books & Supplies",
+    "description": "Donations for books and educational supplies",
+    "displayOrder": 2,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  }
+]
+```
+
+#### 2. Get Donation Sub-Category by ID
+
+**Endpoint:** `GET /api/master/donation-sub-categories/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Sub-category ID
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "id": 1,
+  "purposeId": 1,
+  "code": "DSC001",
+  "name": "School Fees",
+  "description": "Donations for school fees",
+  "displayOrder": 1,
+  "isActive": true,
+  "createdAt": "2024-01-15T10:30:00",
+  "updatedAt": "2024-01-15T10:30:00"
+}
+```
+
+#### 3. Create Donation Sub-Category
+
+**Endpoint:** `POST /api/master/donation-sub-categories`
+
+**Request Body:**
+```json
+{
+  "purposeId": 1,
+  "code": "DSC003",
+  "name": "Scholarship",
+  "description": "Donations for scholarships",
+  "displayOrder": 3,
+  "isActive": true
+}
+```
+
+**Response:** `201 Created`
+
+**Response Body:**
+```json
+{
+  "id": 3,
+  "purposeId": 1,
+  "code": "DSC003",
+  "name": "Scholarship",
+  "description": "Donations for scholarships",
+  "displayOrder": 3,
+  "isActive": true,
+  "createdAt": "2024-01-16T14:20:00",
+  "updatedAt": "2024-01-16T14:20:00"
+}
+```
+
+**Error Response:** `400 Bad Request` - Invalid purpose ID
+```json
+{
+  "error": "Validation Failed",
+  "message": "Purpose ID is required"
+}
+```
+
+#### 4. Update Donation Sub-Category
+
+**Endpoint:** `PUT /api/master/donation-sub-categories/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Sub-category ID
+
+**Request Body:**
+```json
+{
+  "purposeId": 1,
+  "code": "DSC003",
+  "name": "Updated Scholarship",
+  "description": "Updated description",
+  "displayOrder": 3,
+  "isActive": true
+}
+```
+
+**Response:** `200 OK`
+
+#### 5. Delete Donation Sub-Category
+
+**Endpoint:** `DELETE /api/master/donation-sub-categories/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Sub-category ID
+
+**Response:** `204 No Content`
+
+---
+
+### Expense Categories API
+
+#### 1. Get All Expense Categories
+
+**Endpoint:** `GET /api/master/expense-categories`
+
+**Query Parameters:**
+- `includeInactive` (optional, boolean, default: `false`)
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+[
+  {
+    "id": 1,
+    "code": "EC001",
+    "name": "Administrative",
+    "description": "Administrative expenses",
+    "displayOrder": 1,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  }
+]
+```
+
+#### 2. Get Expense Category by ID
+
+**Endpoint:** `GET /api/master/expense-categories/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Category ID
+
+**Response:** `200 OK`
+
+#### 3. Create Expense Category
+
+**Endpoint:** `POST /api/master/expense-categories`
+
+**Request Body:**
+```json
+{
+  "code": "EC002",
+  "name": "Operational",
+  "description": "Operational expenses",
+  "displayOrder": 2,
+  "isActive": true
+}
+```
+
+**Response:** `201 Created`
+
+#### 4. Update Expense Category
+
+**Endpoint:** `PUT /api/master/expense-categories/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Category ID
+
+**Request Body:**
+```json
+{
+  "code": "EC002",
+  "name": "Updated Operational",
+  "description": "Updated description",
+  "displayOrder": 2,
+  "isActive": true
+}
+```
+
+**Response:** `200 OK`
+
+#### 5. Delete Expense Category
+
+**Endpoint:** `DELETE /api/master/expense-categories/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Category ID
+
+**Response:** `204 No Content`
+
+---
+
+### Expense Sub-Categories API
+
+#### 1. Get All Expense Sub-Categories
+
+**Endpoint:** `GET /api/master/expense-sub-categories`
+
+**Query Parameters:**
+- `categoryId` (optional, Long) - Filter by category ID
+- `includeInactive` (optional, boolean, default: `false`)
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+[
+  {
+    "id": 1,
+    "categoryId": 1,
+    "code": "ESC001",
+    "name": "Office Supplies",
+    "description": "Office supplies and stationery",
+    "displayOrder": 1,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  }
+]
+```
+
+#### 2. Get Expense Sub-Category by ID
+
+**Endpoint:** `GET /api/master/expense-sub-categories/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Sub-category ID
+
+**Response:** `200 OK`
+
+#### 3. Create Expense Sub-Category
+
+**Endpoint:** `POST /api/master/expense-sub-categories`
+
+**Request Body:**
+```json
+{
+  "categoryId": 1,
+  "code": "ESC002",
+  "name": "Utilities",
+  "description": "Electricity, water, internet bills",
+  "displayOrder": 2,
+  "isActive": true
+}
+```
+
+**Response:** `201 Created`
+
+#### 4. Update Expense Sub-Category
+
+**Endpoint:** `PUT /api/master/expense-sub-categories/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Sub-category ID
+
+**Request Body:**
+```json
+{
+  "categoryId": 1,
+  "code": "ESC002",
+  "name": "Updated Utilities",
+  "description": "Updated description",
+  "displayOrder": 2,
+  "isActive": true
+}
+```
+
+**Response:** `200 OK`
+
+#### 5. Delete Expense Sub-Category
+
+**Endpoint:** `DELETE /api/master/expense-sub-categories/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Sub-category ID
+
+**Response:** `204 No Content`
+
+---
+
+### Events API
+
+#### 1. Get All Events
+
+**Endpoint:** `GET /api/master/events`
+
+**Query Parameters:**
+- `branchId` (optional, Long) - Filter by branch ID
+- `status` (optional, String) - Filter by status (PLANNED, ACTIVE, COMPLETED, CANCELLED)
+- `includeInactive` (optional, boolean, default: `false`)
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+[
+  {
+    "id": 1,
+    "code": "EVT001",
+    "name": "Annual Fundraiser",
+    "description": "Annual fundraising event",
+    "startDate": "2024-03-01",
+    "endDate": "2024-03-05",
+    "status": "PLANNED",
+    "branchId": 1,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  }
+]
+```
+
+#### 2. Get Event by ID
+
+**Endpoint:** `GET /api/master/events/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Event ID
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "id": 1,
+  "code": "EVT001",
+  "name": "Annual Fundraiser",
+  "description": "Annual fundraising event",
+  "startDate": "2024-03-01",
+  "endDate": "2024-03-05",
+  "status": "PLANNED",
+  "branchId": 1,
+  "isActive": true,
+  "createdAt": "2024-01-15T10:30:00",
+  "updatedAt": "2024-01-15T10:30:00"
+}
+```
+
+#### 3. Create Event
+
+**Endpoint:** `POST /api/master/events`
+
+**Request Body:**
+```json
+{
+  "code": "EVT002",
+  "name": "Charity Run",
+  "description": "5K charity run event",
+  "startDate": "2024-04-15",
+  "endDate": "2024-04-15",
+  "status": "PLANNED",
+  "branchId": 1,
+  "isActive": true
+}
+```
+
+**Response:** `201 Created`
+
+**Error Response:** `400 Bad Request` - Invalid date range
+```json
+{
+  "error": "Validation Failed",
+  "message": "End date must be after start date"
+}
+```
+
+#### 4. Update Event
+
+**Endpoint:** `PUT /api/master/events/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Event ID
+
+**Request Body:**
+```json
+{
+  "code": "EVT002",
+  "name": "Updated Charity Run",
+  "description": "Updated description",
+  "startDate": "2024-04-15",
+  "endDate": "2024-04-15",
+  "status": "ACTIVE",
+  "branchId": 1,
+  "isActive": true
+}
+```
+
+**Response:** `200 OK`
+
+#### 5. Delete Event
+
+**Endpoint:** `DELETE /api/master/events/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Event ID
+
+**Response:** `204 No Content`
+
+---
+
+### Subscription Plans API
+
+#### 1. Get All Subscription Plans
+
+**Endpoint:** `GET /api/master/subscription-plans`
+
+**Query Parameters:**
+- `planType` (optional, String) - Filter by plan type (MONTHLY, QUARTERLY, YEARLY, LIFETIME)
+- `includeInactive` (optional, boolean, default: `false`)
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+[
+  {
+    "id": 1,
+    "code": "SP001",
+    "name": "Monthly Plan",
+    "planType": "MONTHLY",
+    "durationMonths": 1,
+    "amount": 1000.00,
+    "description": "Monthly subscription plan",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  }
+]
+```
+
+#### 2. Get Subscription Plan by ID
+
+**Endpoint:** `GET /api/master/subscription-plans/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Plan ID
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "id": 1,
+  "code": "SP001",
+  "name": "Monthly Plan",
+  "planType": "MONTHLY",
+  "durationMonths": 1,
+  "amount": 1000.00,
+  "description": "Monthly subscription plan",
+  "isActive": true,
+  "createdAt": "2024-01-15T10:30:00",
+  "updatedAt": "2024-01-15T10:30:00"
+}
+```
+
+#### 3. Create Subscription Plan
+
+**Endpoint:** `POST /api/master/subscription-plans`
+
+**Request Body:**
+```json
+{
+  "code": "SP002",
+  "name": "Yearly Plan",
+  "planType": "YEARLY",
+  "durationMonths": 12,
+  "amount": 10000.00,
+  "description": "Yearly subscription plan with discount",
+  "isActive": true
+}
+```
+
+**Response:** `201 Created`
+
+**Error Response:** `400 Bad Request` - Invalid plan type
+```json
+{
+  "error": "Validation Failed",
+  "fieldErrors": {
+    "planType": "Plan type must be one of: MONTHLY, QUARTERLY, YEARLY, LIFETIME"
+  }
+}
+```
+
+#### 4. Update Subscription Plan
+
+**Endpoint:** `PUT /api/master/subscription-plans/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Plan ID
+
+**Request Body:**
+```json
+{
+  "code": "SP002",
+  "name": "Updated Yearly Plan",
+  "planType": "YEARLY",
+  "durationMonths": 12,
+  "amount": 9500.00,
+  "description": "Updated description",
+  "isActive": true
+}
+```
+
+**Response:** `200 OK`
+
+#### 5. Delete Subscription Plan
+
+**Endpoint:** `DELETE /api/master/subscription-plans/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Plan ID
+
+**Response:** `204 No Content`
+
+---
+
+### Serial Number Configuration API
+
+#### 1. Get All Serial Number Configurations
+
+**Endpoint:** `GET /api/master/serial-config`
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+[
+  {
+    "id": 1,
+    "entityType": "DONATION",
+    "prefix": "DON",
+    "formatPattern": "{PREFIX}-{YEAR}-{SEQUENCE}",
+    "currentYear": 2024,
+    "lastSequence": 125,
+    "sequenceLength": 4,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-16T14:20:00"
+  },
+  {
+    "id": 2,
+    "entityType": "EXPENSE",
+    "prefix": "EXP",
+    "formatPattern": "{PREFIX}-{YEAR}-{SEQUENCE}",
+    "currentYear": 2024,
+    "lastSequence": 89,
+    "sequenceLength": 4,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-16T14:20:00"
+  }
+]
+```
+
+#### 2. Get Serial Number Config by Entity Type
+
+**Endpoint:** `GET /api/master/serial-config/{entityType}`
+
+**Path Parameters:**
+- `entityType` (required, String) - Entity type (e.g., DONATION, EXPENSE, RECEIPT)
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "id": 1,
+  "entityType": "DONATION",
+  "prefix": "DON",
+  "formatPattern": "{PREFIX}-{YEAR}-{SEQUENCE}",
+  "currentYear": 2024,
+  "lastSequence": 125,
+  "sequenceLength": 4,
+  "createdAt": "2024-01-15T10:30:00",
+  "updatedAt": "2024-01-16T14:20:00"
+}
+```
+
+**Error Response:** `404 Not Found`
+```json
+{
+  "error": "Resource Not Found",
+  "message": "Serial number config not found for entity: INVALID"
+}
+```
+
+#### 3. Get Next Serial Number
+
+**Endpoint:** `GET /api/master/serial-config/next/{entityType}`
+
+**Path Parameters:**
+- `entityType` (required, String) - Entity type
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "serialNumber": "DON-2024-0126",
+  "entityType": "DONATION",
+  "year": 2024,
+  "sequence": 126
+}
+```
+
+**Error Response:** `404 Not Found`
+```json
+{
+  "error": "Resource Not Found",
+  "message": "Serial number config not found for entity: INVALID"
+}
+```
+
+#### 4. Create Serial Number Configuration
+
+**Endpoint:** `POST /api/master/serial-config`
+
+**Request Body:**
+```json
+{
+  "entityType": "RECEIPT",
+  "prefix": "RCP",
+  "formatPattern": "{PREFIX}-{YEAR}-{SEQUENCE}",
+  "currentYear": 2024,
+  "lastSequence": 0,
+  "sequenceLength": 4
+}
+```
+
+**Response:** `201 Created`
+
+**Response Body:**
+```json
+{
+  "id": 3,
+  "entityType": "RECEIPT",
+  "prefix": "RCP",
+  "formatPattern": "{PREFIX}-{YEAR}-{SEQUENCE}",
+  "currentYear": 2024,
+  "lastSequence": 0,
+  "sequenceLength": 4,
+  "createdAt": "2024-01-16T14:20:00",
+  "updatedAt": "2024-01-16T14:20:00"
+}
+```
+
+**Error Response:** `409 Conflict` - Duplicate entity type
+```json
+{
+  "error": "Duplicate Resource",
+  "message": "Serial number config already exists for entity type: RECEIPT"
+}
+```
+
+#### 5. Update Serial Number Configuration
+
+**Endpoint:** `PUT /api/master/serial-config/{entityType}`
+
+**Path Parameters:**
+- `entityType` (required, String) - Entity type
+
+**Request Body:**
+```json
+{
+  "prefix": "RCPT",
+  "formatPattern": "{PREFIX}-{YEAR}-{SEQUENCE}",
+  "sequenceLength": 5
+}
+```
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "id": 3,
+  "entityType": "RECEIPT",
+  "prefix": "RCPT",
+  "formatPattern": "{PREFIX}-{YEAR}-{SEQUENCE}",
+  "currentYear": 2024,
+  "lastSequence": 0,
+  "sequenceLength": 5,
+  "createdAt": "2024-01-16T14:20:00",
+  "updatedAt": "2024-01-16T15:30:00"
+}
+```
+
+---
+
+### Vendors API
+
+#### 1. Get All Vendors
+
+**Endpoint:** `GET /api/master/vendors`
+
+**Query Parameters:**
+- `includeInactive` (optional, boolean, default: `false`)
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+[
+  {
+    "id": 1,
+    "code": "VND001",
+    "name": "ABC Supplies Pvt Ltd",
+    "contactPerson": "Rajesh Kumar",
+    "phone": "+91-22-12345678",
+    "email": "contact@abcsupplies.com",
+    "address": "123 Business Park",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "pincode": "400001",
+    "gstNumber": "27AABCU1234A1Z5",
+    "panNumber": "AABCU1234A",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  }
+]
+```
+
+#### 2. Get Vendor by ID
+
+**Endpoint:** `GET /api/master/vendors/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Vendor ID
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "id": 1,
+  "code": "VND001",
+  "name": "ABC Supplies Pvt Ltd",
+  "contactPerson": "Rajesh Kumar",
+  "phone": "+91-22-12345678",
+  "email": "contact@abcsupplies.com",
+  "address": "123 Business Park",
+  "city": "Mumbai",
+  "state": "Maharashtra",
+  "pincode": "400001",
+  "gstNumber": "27AABCU1234A1Z5",
+  "panNumber": "AABCU1234A",
+  "isActive": true,
+  "createdAt": "2024-01-15T10:30:00",
+  "updatedAt": "2024-01-15T10:30:00"
+}
+```
+
+#### 3. Create Vendor
+
+**Endpoint:** `POST /api/master/vendors`
+
+**Request Body:**
+```json
+{
+  "code": "VND002",
+  "name": "XYZ Services Ltd",
+  "contactPerson": "Priya Sharma",
+  "phone": "+91-11-87654321",
+  "email": "info@xyzservices.com",
+  "address": "456 Industrial Area",
+  "city": "Delhi",
+  "state": "Delhi",
+  "pincode": "110001",
+  "gstNumber": "07XYZSE5678B2Z6",
+  "panNumber": "XYZSE5678B",
+  "isActive": true
+}
+```
+
+**Response:** `201 Created`
+
+#### 4. Update Vendor
+
+**Endpoint:** `PUT /api/master/vendors/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Vendor ID
+
+**Request Body:**
+```json
+{
+  "code": "VND002",
+  "name": "Updated XYZ Services Ltd",
+  "contactPerson": "Priya Sharma",
+  "phone": "+91-11-87654321",
+  "email": "updated@xyzservices.com",
+  "address": "456 Industrial Area",
+  "city": "Delhi",
+  "state": "Delhi",
+  "pincode": "110001",
+  "gstNumber": "07XYZSE5678B2Z6",
+  "panNumber": "XYZSE5678B",
+  "isActive": true
+}
+```
+
+**Response:** `200 OK`
+
+#### 5. Delete Vendor
+
+**Endpoint:** `DELETE /api/master/vendors/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Vendor ID
+
+**Response:** `204 No Content`
+
+---
+
+### Payment Modes API
+
+#### 1. Get All Payment Modes
+
+**Endpoint:** `GET /api/master/payment-modes`
+
+**Query Parameters:**
+- `includeInactive` (optional, boolean, default: `false`)
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+[
+  {
+    "id": 1,
+    "code": "PM001",
+    "name": "Cash",
+    "description": "Cash payment",
+    "requiresReceipt": true,
+    "displayOrder": 1,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  },
+  {
+    "id": 2,
+    "code": "PM002",
+    "name": "UPI",
+    "description": "Unified Payments Interface",
+    "requiresReceipt": false,
+    "displayOrder": 2,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  },
+  {
+    "id": 3,
+    "code": "PM003",
+    "name": "Bank Transfer",
+    "description": "Bank transfer or NEFT/RTGS",
+    "requiresReceipt": true,
+    "displayOrder": 3,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  }
+]
+```
+
+#### 2. Get Payment Mode by ID
+
+**Endpoint:** `GET /api/master/payment-modes/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Payment mode ID
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "id": 1,
+  "code": "PM001",
+  "name": "Cash",
+  "description": "Cash payment",
+  "requiresReceipt": true,
+  "displayOrder": 1,
+  "isActive": true,
+  "createdAt": "2024-01-15T10:30:00",
+  "updatedAt": "2024-01-15T10:30:00"
+}
+```
+
+#### 3. Create Payment Mode
+
+**Endpoint:** `POST /api/master/payment-modes`
+
+**Request Body:**
+```json
+{
+  "code": "PM004",
+  "name": "Credit Card",
+  "description": "Credit card payment",
+  "requiresReceipt": false,
+  "displayOrder": 4,
+  "isActive": true
+}
+```
+
+**Response:** `201 Created`
+
+#### 4. Update Payment Mode
+
+**Endpoint:** `PUT /api/master/payment-modes/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Payment mode ID
+
+**Request Body:**
+```json
+{
+  "code": "PM004",
+  "name": "Updated Credit Card",
+  "description": "Updated description",
+  "requiresReceipt": false,
+  "displayOrder": 4,
+  "isActive": true
+}
+```
+
+**Response:** `200 OK`
+
+#### 5. Delete Payment Mode
+
+**Endpoint:** `DELETE /api/master/payment-modes/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Payment mode ID
+
+**Response:** `204 No Content`
+
+---
+
+### Subscription Discounts API
+
+#### 1. Get All Subscription Discounts
+
+**Endpoint:** `GET /api/master/subscription-discounts`
+
+**Query Parameters:**
+- `planId` (optional, Long) - Filter by plan ID
+- `isActive` (optional, boolean) - Filter by active status
+- `validFrom` (optional, Date) - Filter by valid from date
+- `validTo` (optional, Date) - Filter by valid to date
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+[
+  {
+    "id": 1,
+    "planId": 2,
+    "discountType": "PERCENTAGE",
+    "discountValue": 10.00,
+    "minQuantity": 1,
+    "maxQuantity": 5,
+    "validFrom": "2024-01-01",
+    "validTo": "2024-12-31",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  },
+  {
+    "id": 2,
+    "planId": 2,
+    "discountType": "FIXED",
+    "discountValue": 500.00,
+    "minQuantity": 6,
+    "maxQuantity": null,
+    "validFrom": "2024-01-01",
+    "validTo": "2024-12-31",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  }
+]
+```
+
+#### 2. Get Subscription Discount by ID
+
+**Endpoint:** `GET /api/master/subscription-discounts/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Discount ID
+
+**Response:** `200 OK`
+
+**Response Body:**
+```json
+{
+  "id": 1,
+  "planId": 2,
+  "discountType": "PERCENTAGE",
+  "discountValue": 10.00,
+  "minQuantity": 1,
+  "maxQuantity": 5,
+  "validFrom": "2024-01-01",
+  "validTo": "2024-12-31",
+  "isActive": true,
+  "createdAt": "2024-01-15T10:30:00",
+  "updatedAt": "2024-01-15T10:30:00"
+}
+```
+
+#### 3. Create Subscription Discount
+
+**Endpoint:** `POST /api/master/subscription-discounts`
+
+**Request Body:**
+```json
+{
+  "planId": 2,
+  "discountType": "PERCENTAGE",
+  "discountValue": 15.00,
+  "minQuantity": 10,
+  "maxQuantity": null,
+  "validFrom": "2024-02-01",
+  "validTo": "2024-12-31",
+  "isActive": true
+}
+```
+
+**Response:** `201 Created`
+
+**Error Response:** `400 Bad Request` - Invalid discount type or date range
+```json
+{
+  "error": "Validation Failed",
+  "fieldErrors": {
+    "discountType": "Discount type must be PERCENTAGE or FIXED",
+    "validTo": "Valid to date must be after valid from date"
+  }
+}
+```
+
+#### 4. Update Subscription Discount
+
+**Endpoint:** `PUT /api/master/subscription-discounts/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Discount ID
+
+**Request Body:**
+```json
+{
+  "planId": 2,
+  "discountType": "PERCENTAGE",
+  "discountValue": 20.00,
+  "minQuantity": 10,
+  "maxQuantity": null,
+  "validFrom": "2024-02-01",
+  "validTo": "2024-12-31",
+  "isActive": true
+}
+```
+
+**Response:** `200 OK`
+
+#### 5. Delete Subscription Discount
+
+**Endpoint:** `DELETE /api/master/subscription-discounts/{id}`
+
+**Path Parameters:**
+- `id` (required, Long) - Discount ID
+
+**Response:** `204 No Content`
+
+---
+
+### Common Error Responses
+
+#### 400 Bad Request - Validation Error
+```json
+{
+  "error": "Validation Failed",
+  "fieldErrors": {
+    "fieldName": "Error message for field"
+  }
+}
+```
+
+#### 401 Unauthorized
+```json
+{
+  "error": "Unauthorized",
+  "message": "Authentication required"
+}
+```
+
+#### 403 Forbidden
+```json
+{
+  "error": "Forbidden",
+  "message": "Insufficient permissions"
+}
+```
+
+#### 404 Not Found
+```json
+{
+  "error": "Resource Not Found",
+  "message": "Resource not found with id: {id}"
+}
+```
+
+#### 409 Conflict - Duplicate Resource
+```json
+{
+  "error": "Duplicate Resource",
+  "message": "Resource with code '{code}' already exists"
+}
+```
+
+#### 500 Internal Server Error
+```json
+{
+  "error": "Internal Server Error",
+  "message": "An unexpected error occurred"
 }
 ```
 
