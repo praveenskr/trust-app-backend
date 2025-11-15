@@ -2,9 +2,13 @@ package com.trustapp.service;
 
 import com.trustapp.dto.LoginResponseDTO;
 import com.trustapp.dto.LoginUserDTO;
+import com.trustapp.dto.RefreshTokenRequestDTO;
+import com.trustapp.dto.RefreshTokenResponseDTO;
 import com.trustapp.dto.RegisterUserDTO;
 import com.trustapp.dto.RegisterUserResponseDTO;
 import com.trustapp.dto.UserDTO;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.trustapp.exception.DuplicateResourceException;
 import com.trustapp.exception.ResourceNotFoundException;
 import com.trustapp.exception.ValidationException;
@@ -111,7 +115,7 @@ public class AuthenticationService {
         String refreshToken = jwtService.generateRefreshToken(authenticatedUser);
         
         // Save tokens to database
-        saveBearerToken(authenticatedUser, jwtToken);
+        saveAccessToken(authenticatedUser, jwtToken);
         saveRefreshToken(authenticatedUser, refreshToken);
         
         // Update last login time
@@ -139,7 +143,7 @@ public class AuthenticationService {
             .build();
     }
     
-    private void saveBearerToken(User user, String jwtToken) {
+    private void saveAccessToken(User user, String jwtToken) {
         var token = Token.builder()
             .user(user)
             .token(jwtToken)
@@ -163,6 +167,79 @@ public class AuthenticationService {
             .build();
         
         tokenRepository.saveUserToken(token);
+    }
+    
+    public RefreshTokenResponseDTO refreshToken(RefreshTokenRequestDTO request) {
+        final String refreshToken = request.getRefreshToken();
+        
+        // Extract username from refresh token
+        final String userEmail = jwtService.extractUsername(refreshToken);
+        
+        if (userEmail == null) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+        
+        // Find user
+        User user = userRepository.findByEmailForAuthentication(userEmail)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        
+        // Validate refresh token from database
+        var storedToken = tokenRepository.findRefreshToken(refreshToken)
+            .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+        
+        if (storedToken.getExpired() || storedToken.getRevoked()) {
+            throw new RuntimeException("Refresh token is expired or revoked");
+        }
+        
+        // Validate token
+        if (!jwtService.isTokenValid(refreshToken, user)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+        
+        // Generate only new access token, keep the same refresh token
+        String newAccessToken = jwtService.generateToken(user);
+        
+        // Revoke all old access tokens for this user (but keep refresh tokens active)
+        revokeAllUserAccessTokens(user);
+        
+        // Save new access token
+        saveAccessToken(user, newAccessToken);
+        
+        return RefreshTokenResponseDTO.builder()
+            .accessToken(newAccessToken)
+            .refreshToken(refreshToken)  // Return the same refresh token
+            .expiresIn(jwtService.getExpirationTime())
+            .tokenType("Bearer")
+            .build();
+    }
+    
+    public UserDTO getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+        
+        // Get email from authentication principal (UserDetails.getUsername() returns email)
+        String email = authentication.getName();
+        
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+    
+    private void revokeAllUserAccessTokens(User user) {
+        var validAccessTokens = tokenRepository.findAllValidJwtTokensByUser(user.getId());
+        
+        if (validAccessTokens.isEmpty()) {
+            return;
+        }
+        
+        validAccessTokens.forEach(token -> {
+            token.setExpired(true);
+            token.setRevoked(true);
+        });
+        
+        tokenRepository.revokeAllUserTokens(validAccessTokens);
     }
     
     private void validateRoles(List<Long> roleIds) {

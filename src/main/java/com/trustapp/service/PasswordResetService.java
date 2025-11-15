@@ -6,6 +6,8 @@ import com.trustapp.exception.ResourceNotFoundException;
 import com.trustapp.exception.ValidationException;
 import com.trustapp.repository.PasswordResetTokenRepository;
 import com.trustapp.repository.UserRepository;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,16 +19,19 @@ import java.util.Base64;
 @Service
 public class PasswordResetService {
     
+    private final JavaMailSender mailSender;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private static final int TOKEN_EXPIRY_HOURS = 24;
+    private static final int TOKEN_EXPIRY_MINUTES = 30;
     private static final int TOKEN_LENGTH = 32;
     
     public PasswordResetService(
+            JavaMailSender mailSender,
             PasswordResetTokenRepository passwordResetTokenRepository,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder) {
+        this.mailSender = mailSender;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -48,14 +53,13 @@ public class PasswordResetService {
         
         // Generate secure token
         String token = generateSecureToken();
-        LocalDateTime expiresAt = LocalDateTime.now().plusHours(TOKEN_EXPIRY_HOURS);
+        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(TOKEN_EXPIRY_MINUTES);
         
         // Save token
         passwordResetTokenRepository.save(user.getId(), token, expiresAt);
         
         // Send email with reset link
-        // Note: This would typically use an email service
-        // sendPasswordResetEmail(user.getEmail(), token);
+        sendPasswordResetEmail(user.getEmail(), token);
     }
     
     @Transactional
@@ -97,6 +101,18 @@ public class PasswordResetService {
         byte[] tokenBytes = new byte[TOKEN_LENGTH];
         random.nextBytes(tokenBytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+    }
+    
+    public void sendPasswordResetEmail(String email, String token) {
+        String resetUrl = "http://localhost:8083/api/auth/password-reset/validate/" + token;
+        String body = "Click the link below to reset your password.\n" + resetUrl;
+    
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Password Reset");
+        message.setText(body);
+    
+        mailSender.send(message);
     }
 }
 

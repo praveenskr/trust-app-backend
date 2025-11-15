@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth/password-reset")
+@RequestMapping("/auth")
 public class PasswordResetController {
     
     private final PasswordResetService passwordResetService;
@@ -19,22 +19,22 @@ public class PasswordResetController {
         this.passwordResetService = passwordResetService;
     }
     
-    @PostMapping("/request")
-    public ResponseEntity<ApiResponse<?>> requestPasswordReset(
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<?>> forgotPassword(
             @Valid @RequestBody PasswordResetRequestDTO requestDTO) {
         passwordResetService.requestPasswordReset(requestDTO);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
             .body(ApiResponse.success("Password reset email sent successfully"));
     }
     
-    @PostMapping("/reset")
+    @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<?>> resetPassword(
             @Valid @RequestBody PasswordResetDTO resetDTO) {
         passwordResetService.resetPassword(resetDTO);
         return ResponseEntity.ok(ApiResponse.success("Password reset successfully"));
     }
     
-    @GetMapping("/validate/{token}")
+    @GetMapping("/password-reset/validate/{token}")
     public ResponseEntity<ApiResponse<Boolean>> validateToken(@PathVariable String token) {
         boolean isValid = passwordResetService.validateToken(token);
         return ResponseEntity.ok(ApiResponse.success(isValid));

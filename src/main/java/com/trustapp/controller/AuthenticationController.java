@@ -3,8 +3,11 @@ package com.trustapp.controller;
 import com.trustapp.dto.LoginResponseDTO;
 import com.trustapp.dto.LoginUserDTO;
 import com.trustapp.dto.LogoutRequestDTO;
+import com.trustapp.dto.RefreshTokenRequestDTO;
+import com.trustapp.dto.RefreshTokenResponseDTO;
 import com.trustapp.dto.RegisterUserDTO;
 import com.trustapp.dto.RegisterUserResponseDTO;
+import com.trustapp.dto.UserDTO;
 import com.trustapp.dto.response.ApiResponse;
 import com.trustapp.service.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,13 +42,18 @@ public class AuthenticationController {
     
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponseDTO>> authenticate(@Valid @RequestBody LoginUserDTO loginUserDTO) {
+        LoginResponseDTO response = authenticationService.authenticate(loginUserDTO);
+        return ResponseEntity.ok(ApiResponse.success("Login successful", response));
+    }
+    
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ApiResponse<RefreshTokenResponseDTO>> refreshToken(@Valid @RequestBody RefreshTokenRequestDTO request) {
         try {
-            LoginResponseDTO response = authenticationService.authenticate(loginUserDTO);
-            
-            return ResponseEntity.ok(ApiResponse.success("Login successful", response));
+            RefreshTokenResponseDTO response = authenticationService.refreshToken(request);
+            return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully", response));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error("Invalid email or password", "INVALID_CREDENTIALS"));
+                .body(ApiResponse.error("Refresh token is invalid or expired", "INVALID_REFRESH_TOKEN"));
         }
     }
     
@@ -58,6 +66,12 @@ public class AuthenticationController {
         SecurityContextHolder.clearContext();
         ApiResponse<?> response = ApiResponse.success("Logged out successfully");
         return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/current-user")
+    public ResponseEntity<ApiResponse<UserDTO>> getCurrentUser() {
+        UserDTO user = authenticationService.getCurrentUser();
+        return ResponseEntity.ok(ApiResponse.success("User retrieved successfully", user));
     }
 }
 

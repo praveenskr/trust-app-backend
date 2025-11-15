@@ -71,7 +71,7 @@ public class TokenRepository {
             FROM tokens t
             INNER JOIN users u ON t.user_id = u.id
             WHERE u.id = ? AND t.token_type = 'BEARER' 
-            AND (t.expired = FALSE OR t.revoked = FALSE)
+            AND t.expired = FALSE AND t.revoked = FALSE
             """;
         
         return jdbcClient.sql(sql)
