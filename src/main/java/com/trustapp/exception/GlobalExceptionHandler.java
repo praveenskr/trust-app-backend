@@ -1,8 +1,8 @@
 package com.trustapp.exception;
 
 import com.trustapp.dto.ErrorResponseDTO;
-import com.trustapp.dto.ValidationErrorResponseDTO;
 import com.trustapp.dto.response.ApiResponse;
+import com.trustapp.dto.response.FieldErrorDetail;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import org.springframework.http.HttpStatus;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -100,19 +100,19 @@ public class GlobalExceptionHandler {
     
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> fieldErrors = new HashMap<>();
+        List<FieldErrorDetail> fieldErrors = new ArrayList<>();
         boolean hasPasswordError = false;
         
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
-            fieldErrors.put(fieldName, errorMessage);
+            fieldErrors.add(new FieldErrorDetail(fieldName, errorMessage));
         });
         
         // Check if there's a password-related validation error
-        for (String fieldName : fieldErrors.keySet()) {
-            String lowerFieldName = fieldName.toLowerCase();
-            String errorMessage = fieldErrors.get(fieldName);
+        for (FieldErrorDetail fieldError : fieldErrors) {
+            String lowerFieldName = fieldError.getField().toLowerCase();
+            String errorMessage = fieldError.getMessage();
             String lowerErrorMessage = errorMessage != null ? errorMessage.toLowerCase() : "";
             
             // Check if it's a password field and the error is about requirements/strength
@@ -135,8 +135,8 @@ public class GlobalExceptionHandler {
         }
         
         // Default handling for other validation errors
-        ValidationErrorResponseDTO errors = new ValidationErrorResponseDTO("Validation Failed", fieldErrors);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        ApiResponse<?> apiResponse = ApiResponse.validationError("Validation Failed", fieldErrors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
     
     @ExceptionHandler(SignatureException.class)
