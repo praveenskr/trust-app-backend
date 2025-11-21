@@ -6,6 +6,7 @@ import com.trustapp.exception.ResourceNotFoundException;
 import com.trustapp.exception.ValidationException;
 import com.trustapp.repository.PasswordResetTokenRepository;
 import com.trustapp.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,10 @@ public class PasswordResetService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    
+    @Value("${app.frontend.url:http://localhost:4200}")
+    private String frontendUrl;
+    
     private static final int TOKEN_EXPIRY_MINUTES = 30;
     private static final int TOKEN_LENGTH = 32;
     
@@ -104,8 +109,8 @@ public class PasswordResetService {
     }
     
     public void sendPasswordResetEmail(String email, String token) {
-        String resetUrl = "http://localhost:8083/api/auth/password-reset/validate/" + token;
-        String body = "Click the link below to reset your password.\n" + resetUrl;
+        String resetUrl = frontendUrl + "/reset-password/" + token;
+        String body = "Click the link below to reset your password.\n\n" + resetUrl;
     
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
