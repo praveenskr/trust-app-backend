@@ -129,6 +129,54 @@ public class DonationRepository {
             .single();
     }
     
+    public int update(Long id, String donorName, String donorAddress, String panNumber,
+                      String donorPhone, String donorEmail, java.math.BigDecimal amount,
+                      Long paymentModeId, Long purposeId, Long subCategoryId, Long eventId,
+                      Long branchId, java.time.LocalDate donationDate, String notes, Long userId) {
+        String sql = """
+            UPDATE donations
+            SET donor_name = ?, donor_address = ?, pan_number = ?, donor_phone = ?,
+                donor_email = ?, amount = ?, payment_mode_id = ?, purpose_id = ?,
+                sub_category_id = ?, event_id = ?, branch_id = ?, donation_date = ?,
+                notes = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """;
+        
+        return jdbcClient.sql(sql)
+            .param(donorName)
+            .param(donorAddress)
+            .param(panNumber)
+            .param(donorPhone)
+            .param(donorEmail)
+            .param(amount)
+            .param(paymentModeId)
+            .param(purposeId)
+            .param(subCategoryId)
+            .param(eventId)
+            .param(branchId)
+            .param(donationDate)
+            .param(notes)
+            .param(userId)
+            .param(id)
+            .update();
+    }
+    
+    public int delete(Long id, Long userId) {
+        // Soft delete: Set is_active = false, deleted_at = CURRENT_TIMESTAMP, deleted_by = userId
+        String sql = """
+            UPDATE donations
+            SET is_active = FALSE, deleted_at = CURRENT_TIMESTAMP, deleted_by = ?,
+                updated_by = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """;
+        
+        return jdbcClient.sql(sql)
+            .param(userId)
+            .param(userId)
+            .param(id)
+            .update();
+    }
+    
     public List<DonationDTO> findAll(Long branchId, Long purposeId, Long eventId, Long paymentModeId,
                                      LocalDate fromDate, LocalDate toDate, String donorName,
                                      String panNumber, String receiptNumber, boolean includeInactive,

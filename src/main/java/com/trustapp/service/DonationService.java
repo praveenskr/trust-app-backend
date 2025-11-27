@@ -169,5 +169,117 @@ public class DonationService {
         
         return getDonationById(donationId);
     }
+    
+    @Transactional
+    public DonationDTO updateDonation(Long id, DonationUpdateDTO updateDTO, Long updatedBy) {
+        // Get existing donation - validates it exists and is active
+        DonationDTO existingDonation = getDonationById(id);
+        
+        // Business rule: Cannot update if receipt is generated
+        if (existingDonation.getReceiptGenerated() != null && existingDonation.getReceiptGenerated()) {
+            throw new ValidationException("Cannot update donation transaction with generated receipt. Please delete the receipt first.");
+        }
+        
+        // Validate user exists (updatedBy)
+        userRepository.findById(updatedBy)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + updatedBy));
+        
+        // Determine values to update (use existing if not provided in updateDTO)
+        String donorName = updateDTO.getDonorName() != null ? updateDTO.getDonorName() : existingDonation.getDonorName();
+        String donorAddress = updateDTO.getDonorAddress() != null ? updateDTO.getDonorAddress() : existingDonation.getDonorAddress();
+        String panNumber = updateDTO.getPanNumber() != null ? updateDTO.getPanNumber() : existingDonation.getPanNumber();
+        String donorPhone = updateDTO.getDonorPhone() != null ? updateDTO.getDonorPhone() : existingDonation.getDonorPhone();
+        String donorEmail = updateDTO.getDonorEmail() != null ? updateDTO.getDonorEmail() : existingDonation.getDonorEmail();
+        java.math.BigDecimal amount = updateDTO.getAmount() != null ? updateDTO.getAmount() : existingDonation.getAmount();
+        Long paymentModeId = updateDTO.getPaymentModeId() != null ? updateDTO.getPaymentModeId() : existingDonation.getPaymentMode().getId();
+        Long purposeId = updateDTO.getPurposeId() != null ? updateDTO.getPurposeId() : existingDonation.getPurpose().getId();
+        Long subCategoryId = updateDTO.getSubCategoryId() != null ? updateDTO.getSubCategoryId() : 
+            (existingDonation.getSubCategory() != null ? existingDonation.getSubCategory().getId() : null);
+        Long eventId = updateDTO.getEventId() != null ? updateDTO.getEventId() : 
+            (existingDonation.getEvent() != null ? existingDonation.getEvent().getId() : null);
+        Long branchId = updateDTO.getBranchId() != null ? updateDTO.getBranchId() : existingDonation.getBranch().getId();
+        LocalDate donationDate = updateDTO.getDonationDate() != null ? updateDTO.getDonationDate() : existingDonation.getDonationDate();
+        String notes = updateDTO.getNotes() != null ? updateDTO.getNotes() : existingDonation.getNotes();
+        
+        // Validate payment mode if being updated
+        if (updateDTO.getPaymentModeId() != null) {
+            paymentModeRepository.findById(updateDTO.getPaymentModeId())
+                .orElseThrow(() -> new ResourceNotFoundException("Payment mode not found with id: " + updateDTO.getPaymentModeId()));
+        }
+        
+        // Validate purpose if being updated
+        if (updateDTO.getPurposeId() != null) {
+            donationPurposeRepository.findById(updateDTO.getPurposeId())
+                .orElseThrow(() -> new ResourceNotFoundException("Donation purpose not found with id: " + updateDTO.getPurposeId()));
+        }
+        
+        // Validate sub-category if being updated
+        if (updateDTO.getSubCategoryId() != null) {
+            DonationSubCategoryDTO subCategory = donationSubCategoryRepository.findById(updateDTO.getSubCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Donation sub-category not found with id: " + updateDTO.getSubCategoryId()));
+            
+            // Validate sub-category belongs to the specified purpose
+            Long finalPurposeId = updateDTO.getPurposeId() != null ? updateDTO.getPurposeId() : existingDonation.getPurpose().getId();
+            if (!subCategory.getPurposeId().equals(finalPurposeId)) {
+                throw new ValidationException("Sub-category does not belong to the specified purpose");
+            }
+        }
+        
+        // Validate event if being updated
+        if (updateDTO.getEventId() != null) {
+            eventRepository.findById(updateDTO.getEventId())
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + updateDTO.getEventId()));
+        }
+        
+        // Validate branch if being updated
+        if (updateDTO.getBranchId() != null) {
+            branchRepository.findById(updateDTO.getBranchId())
+                .orElseThrow(() -> new ResourceNotFoundException("Branch not found with id: " + updateDTO.getBranchId()));
+        }
+        
+        // Validate donation date is not in the future if being updated
+        if (updateDTO.getDonationDate() != null && updateDTO.getDonationDate().isAfter(LocalDate.now())) {
+            throw new ValidationException("Donation date cannot be in the future");
+        }
+        
+        // Update donation
+        donationRepository.update(
+            id,
+            donorName,
+            donorAddress,
+            panNumber,
+            donorPhone,
+            donorEmail,
+            amount,
+            paymentModeId,
+            purposeId,
+            subCategoryId,
+            eventId,
+            branchId,
+            donationDate,
+            notes,
+            updatedBy
+        );
+        
+        return getDonationById(id);
+    }
+    
+    @Transactional
+    public void deleteDonation(Long id, Long deletedBy) {
+        // Get existing donation - validates it exists and is active
+        DonationDTO existingDonation = getDonationById(id);
+        
+        // Business rule: Cannot delete if receipt is generated
+        if (existingDonation.getReceiptGenerated() != null && existingDonation.getReceiptGenerated()) {
+            throw new ValidationException("Cannot delete donation transaction with generated receipt. Please delete the receipt first.");
+        }
+        
+        // Validate user exists (deletedBy)
+        userRepository.findById(deletedBy)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + deletedBy));
+        
+        // Soft delete donation
+        donationRepository.delete(id, deletedBy);
+    }
 }
 

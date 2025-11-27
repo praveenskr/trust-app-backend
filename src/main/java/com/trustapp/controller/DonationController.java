@@ -2,6 +2,7 @@ package com.trustapp.controller;
 
 import com.trustapp.dto.DonationCreateDTO;
 import com.trustapp.dto.DonationDTO;
+import com.trustapp.dto.DonationUpdateDTO;
 import com.trustapp.dto.response.ApiResponse;
 import com.trustapp.dto.response.PageResponseDTO;
 import com.trustapp.service.DonationService;
@@ -47,6 +48,35 @@ public class DonationController {
         );
         
         return ResponseEntity.ok(ApiResponse.success(pageResponse));
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<DonationDTO>> getDonationById(@PathVariable Long id) {
+        DonationDTO donation = donationService.getDonationById(id);
+        return ResponseEntity.ok(ApiResponse.success(donation));
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<DonationDTO>> updateDonation(
+            @PathVariable Long id,
+            @Valid @RequestBody DonationUpdateDTO updateDTO,
+            @RequestParam(required = false) Long updatedBy) {
+        // Default to 1 if not provided (should be replaced with authenticated user in production)
+        Long userId = updatedBy != null ? updatedBy : 1L;
+        
+        DonationDTO updated = donationService.updateDonation(id, updateDTO, userId);
+        return ResponseEntity.ok(ApiResponse.success("Donation transaction updated successfully", updated));
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<?>> deleteDonation(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long deletedBy) {
+        // Default to 1 if not provided (should be replaced with authenticated user in production)
+        Long userId = deletedBy != null ? deletedBy : 1L;
+        
+        donationService.deleteDonation(id, userId);
+        return ResponseEntity.ok(ApiResponse.success("Donation transaction deleted successfully"));
     }
     
     @PostMapping
