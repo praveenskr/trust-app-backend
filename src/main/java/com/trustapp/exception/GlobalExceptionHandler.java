@@ -1,6 +1,5 @@
 package com.trustapp.exception;
 
-import com.trustapp.dto.ErrorResponseDTO;
 import com.trustapp.dto.response.ApiResponse;
 import com.trustapp.dto.response.FieldErrorDetail;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -35,8 +34,8 @@ public class GlobalExceptionHandler {
         }
         
         // Default handling for other resource not found errors
-        ErrorResponseDTO error = new ErrorResponseDTO("Resource Not Found", message);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        ApiResponse<String> apiResponse = ApiResponse.error(message, "RESOURCE_NOT_FOUND");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse);
     }
     
     @ExceptionHandler(DuplicateResourceException.class)
@@ -60,8 +59,8 @@ public class GlobalExceptionHandler {
         }
         
         // Default handling for other duplicate resources
-        ErrorResponseDTO error = new ErrorResponseDTO("Duplicate Resource", message);
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        ApiResponse<String> apiResponse = ApiResponse.error(message, "DUPLICATE_RESOURCE");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiResponse);
     }
     
     @ExceptionHandler(ValidationException.class)
@@ -88,8 +87,8 @@ public class GlobalExceptionHandler {
         }
         
         // Default handling for other validation errors
-        ErrorResponseDTO error = new ErrorResponseDTO("Validation Failed", message);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        ApiResponse<String> apiResponse = ApiResponse.error(message, "VALIDATION_ERROR");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
     
     @ExceptionHandler(BadCredentialsException.class)
