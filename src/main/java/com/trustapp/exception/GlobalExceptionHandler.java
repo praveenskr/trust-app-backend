@@ -84,6 +84,15 @@ public class GlobalExceptionHandler {
                 ApiResponse<String> apiResponse = ApiResponse.error("New password and confirm password don't match", "PASSWORD_MISMATCH");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
             }
+            
+            // Check if it's a branch update/delete with active transactions error
+            if (lowerMessage.contains("cannot update branch") || lowerMessage.contains("cannot delete branch")) {
+                if (lowerMessage.contains("active donations") || lowerMessage.contains("active expenses") || 
+                    lowerMessage.contains("active events") || lowerMessage.contains("active transactions")) {
+                    ApiResponse<String> apiResponse = ApiResponse.error(message, "VALIDATION_ERROR");
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(apiResponse);
+                }
+            }
         }
         
         // Default handling for other validation errors
@@ -148,6 +157,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleExpiredJwtException(ExpiredJwtException ex) {
         ApiResponse<String> apiResponse = ApiResponse.error("The JWT token has expired", "UNAUTHORIZED");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiResponse);
+    }
+    
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ApiResponse<String>> handleForbiddenException(ForbiddenException ex) {
+        ApiResponse<String> apiResponse = ApiResponse.error(ex.getMessage(), "FORBIDDEN");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiResponse);
     }
 }
 

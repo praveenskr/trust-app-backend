@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorResponseDTO {
-    private String error;
-    private String message;
+public class BranchDropdownDTO {
+    private Long id;
+    private String code;
+    private String name;
 }
 
