@@ -2,6 +2,7 @@ package com.trustapp.controller;
 
 import com.trustapp.dto.ExpenseCategoryCreateDTO;
 import com.trustapp.dto.ExpenseCategoryDTO;
+import com.trustapp.dto.ExpenseCategoryDropdownDTO;
 import com.trustapp.dto.ExpenseCategoryUpdateDTO;
 import com.trustapp.dto.response.ApiResponse;
 import com.trustapp.service.ExpenseCategoryService;
@@ -59,6 +60,12 @@ public class ExpenseCategoryController {
             @RequestParam(required = false, defaultValue = "1") Long deletedBy) {
         expenseCategoryService.deleteExpenseCategory(id, deletedBy);
         return ResponseEntity.ok(ApiResponse.success("Expense category deleted successfully"));
+    }
+    
+    @GetMapping("/dropdown")
+    public ResponseEntity<ApiResponse<List<ExpenseCategoryDropdownDTO>>> getAllExpenseCategoriesForDropdown() {
+        List<ExpenseCategoryDropdownDTO> categories = expenseCategoryService.getAllExpenseCategoriesForDropdown();
+        return ResponseEntity.ok(ApiResponse.success(categories));
     }
 }
 

@@ -1,6 +1,7 @@
 package com.trustapp.repository;
 
 import com.trustapp.dto.ExpenseCategoryDTO;
+import com.trustapp.dto.ExpenseCategoryDropdownDTO;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -121,6 +122,23 @@ public class ExpenseCategoryRepository {
             .param(userId)
             .param(id)
             .update();
+    }
+    
+    public List<ExpenseCategoryDropdownDTO> findAllForDropdown() {
+        String sql = """
+            SELECT id, code, name
+            FROM expense_categories
+            WHERE is_active = TRUE
+            ORDER BY name ASC
+            """;
+        
+        return jdbcClient.sql(sql)
+            .query((rs, rowNum) -> new ExpenseCategoryDropdownDTO(
+                rs.getLong("id"),
+                rs.getString("code"),
+                rs.getString("name")
+            ))
+            .list();
     }
 }
 
