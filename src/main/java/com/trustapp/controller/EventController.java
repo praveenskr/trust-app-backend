@@ -2,6 +2,7 @@ package com.trustapp.controller;
 
 import com.trustapp.dto.EventCreateDTO;
 import com.trustapp.dto.EventDTO;
+import com.trustapp.dto.EventDropdownDTO;
 import com.trustapp.dto.EventUpdateDTO;
 import com.trustapp.dto.response.ApiResponse;
 import com.trustapp.service.EventService;
@@ -61,6 +62,13 @@ public class EventController {
             @RequestParam(required = false, defaultValue = "1") Long deletedBy) {
         eventService.deleteEvent(id, deletedBy);
         return ResponseEntity.ok(ApiResponse.success("Event deleted successfully"));
+    }
+    
+    @GetMapping("/dropdown")
+    public ResponseEntity<ApiResponse<List<EventDropdownDTO>>> getAllEventsForDropdown(
+            @RequestParam(required = false) Long branchId) {
+        List<EventDropdownDTO> events = eventService.getAllEventsForDropdown(branchId);
+        return ResponseEntity.ok(ApiResponse.success(events));
     }
 }
 
