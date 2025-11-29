@@ -2,6 +2,7 @@ package com.trustapp.service;
 
 import com.trustapp.dto.DonationSubCategoryCreateDTO;
 import com.trustapp.dto.DonationSubCategoryDTO;
+import com.trustapp.dto.DonationSubCategoryDropdownDTO;
 import com.trustapp.dto.DonationSubCategoryUpdateDTO;
 import com.trustapp.exception.DuplicateResourceException;
 import com.trustapp.exception.ResourceNotFoundException;
@@ -84,6 +85,10 @@ public class DonationSubCategoryService {
         
         // Perform soft delete
         donationSubCategoryRepository.delete(id, userId);
+    }
+    
+    public List<DonationSubCategoryDropdownDTO> getAllDonationSubCategoriesForDropdown(Long purposeId) {
+        return donationSubCategoryRepository.findAllForDropdown(purposeId);
     }
 }
 

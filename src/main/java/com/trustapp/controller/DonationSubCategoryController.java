@@ -2,6 +2,7 @@ package com.trustapp.controller;
 
 import com.trustapp.dto.DonationSubCategoryCreateDTO;
 import com.trustapp.dto.DonationSubCategoryDTO;
+import com.trustapp.dto.DonationSubCategoryDropdownDTO;
 import com.trustapp.dto.DonationSubCategoryUpdateDTO;
 import com.trustapp.dto.response.ApiResponse;
 import com.trustapp.service.DonationSubCategoryService;
@@ -60,6 +61,13 @@ public class DonationSubCategoryController {
             @RequestParam(required = false, defaultValue = "1") Long deletedBy) {
         donationSubCategoryService.deleteDonationSubCategory(id, deletedBy);
         return ResponseEntity.ok(ApiResponse.success("Donation sub-category deleted successfully"));
+    }
+    
+    @GetMapping("/dropdown")
+    public ResponseEntity<ApiResponse<List<DonationSubCategoryDropdownDTO>>> getAllDonationSubCategoriesForDropdown(
+            @RequestParam(required = false) Long purposeId) {
+        List<DonationSubCategoryDropdownDTO> subCategories = donationSubCategoryService.getAllDonationSubCategoriesForDropdown(purposeId);
+        return ResponseEntity.ok(ApiResponse.success(subCategories));
     }
 }
 

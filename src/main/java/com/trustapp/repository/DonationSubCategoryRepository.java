@@ -1,10 +1,12 @@
 package com.trustapp.repository;
 
 import com.trustapp.dto.DonationSubCategoryDTO;
+import com.trustapp.dto.DonationSubCategoryDropdownDTO;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -129,6 +131,36 @@ public class DonationSubCategoryRepository {
             .param(userId)
             .param(id)
             .update();
+    }
+    
+    public List<DonationSubCategoryDropdownDTO> findAllForDropdown(Long purposeId) {
+        StringBuilder sql = new StringBuilder("""
+            SELECT id, code, name
+            FROM donation_sub_categories
+            WHERE is_active = TRUE
+            """);
+        
+        List<Object> params = new ArrayList<>();
+        
+        if (purposeId != null) {
+            sql.append(" AND purpose_id = ?");
+            params.add(purposeId);
+        }
+        
+        sql.append(" ORDER BY name ASC");
+        
+        var query = jdbcClient.sql(sql.toString());
+        for (Object param : params) {
+            query = query.param(param);
+        }
+        
+        return query.query((rs, rowNum) -> {
+            DonationSubCategoryDropdownDTO dto = new DonationSubCategoryDropdownDTO();
+            dto.setId(rs.getLong("id"));
+            dto.setCode(rs.getString("code"));
+            dto.setName(rs.getString("name"));
+            return dto;
+        }).list();
     }
 }
 
