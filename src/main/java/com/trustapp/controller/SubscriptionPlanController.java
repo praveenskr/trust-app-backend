@@ -2,6 +2,7 @@ package com.trustapp.controller;
 
 import com.trustapp.dto.SubscriptionPlanCreateDTO;
 import com.trustapp.dto.SubscriptionPlanDTO;
+import com.trustapp.dto.SubscriptionPlanDropdownDTO;
 import com.trustapp.dto.SubscriptionPlanUpdateDTO;
 import com.trustapp.dto.response.ApiResponse;
 import com.trustapp.service.SubscriptionPlanService;
@@ -60,6 +61,12 @@ public class SubscriptionPlanController {
             @RequestParam(required = false, defaultValue = "1") Long deletedBy) {
         subscriptionPlanService.deleteSubscriptionPlan(id, deletedBy);
         return ResponseEntity.ok(ApiResponse.success("Subscription plan deleted successfully"));
+    }
+    
+    @GetMapping("/dropdown")
+    public ResponseEntity<ApiResponse<List<SubscriptionPlanDropdownDTO>>> getAllSubscriptionPlansForDropdown() {
+        List<SubscriptionPlanDropdownDTO> plans = subscriptionPlanService.getAllSubscriptionPlansForDropdown();
+        return ResponseEntity.ok(ApiResponse.success(plans));
     }
 }
 

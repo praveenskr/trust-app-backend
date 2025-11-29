@@ -1,6 +1,7 @@
 package com.trustapp.repository;
 
 import com.trustapp.dto.SubscriptionPlanDTO;
+import com.trustapp.dto.SubscriptionPlanDropdownDTO;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -141,6 +142,23 @@ public class SubscriptionPlanRepository {
             .param(userId)
             .param(id)
             .update();
+    }
+    
+    public List<SubscriptionPlanDropdownDTO> findAllForDropdown() {
+        String sql = """
+            SELECT id, code, name
+            FROM subscription_plans
+            WHERE is_active = TRUE
+            ORDER BY name ASC
+            """;
+        
+        return jdbcClient.sql(sql)
+            .query((rs, rowNum) -> new SubscriptionPlanDropdownDTO(
+                rs.getLong("id"),
+                rs.getString("code"),
+                rs.getString("name")
+            ))
+            .list();
     }
 }
 

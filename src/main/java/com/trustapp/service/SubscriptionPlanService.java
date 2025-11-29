@@ -2,6 +2,7 @@ package com.trustapp.service;
 
 import com.trustapp.dto.SubscriptionPlanCreateDTO;
 import com.trustapp.dto.SubscriptionPlanDTO;
+import com.trustapp.dto.SubscriptionPlanDropdownDTO;
 import com.trustapp.dto.SubscriptionPlanUpdateDTO;
 import com.trustapp.exception.DuplicateResourceException;
 import com.trustapp.exception.ResourceNotFoundException;
@@ -87,6 +88,10 @@ public class SubscriptionPlanService {
             // Convert IllegalStateException to ValidationException for proper error handling
             throw new ValidationException(e.getMessage());
         }
+    }
+    
+    public List<SubscriptionPlanDropdownDTO> getAllSubscriptionPlansForDropdown() {
+        return subscriptionPlanRepository.findAllForDropdown();
     }
 }
 
