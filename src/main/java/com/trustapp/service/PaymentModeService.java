@@ -2,6 +2,7 @@ package com.trustapp.service;
 
 import com.trustapp.dto.PaymentModeCreateDTO;
 import com.trustapp.dto.PaymentModeDTO;
+import com.trustapp.dto.PaymentModeDropdownDTO;
 import com.trustapp.dto.PaymentModeUpdateDTO;
 import com.trustapp.exception.DuplicateResourceException;
 import com.trustapp.exception.ResourceNotFoundException;
@@ -79,6 +80,10 @@ public class PaymentModeService {
         
         // Perform soft delete
         paymentModeRepository.delete(id);
+    }
+    
+    public List<PaymentModeDropdownDTO> getAllPaymentModesForDropdown() {
+        return paymentModeRepository.findAllForDropdown();
     }
 }
 
