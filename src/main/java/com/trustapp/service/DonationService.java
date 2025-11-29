@@ -92,6 +92,10 @@ public class DonationService {
         
         return pageResponse;
     }
+
+    public List<DonorDropdownDTO> getAllActiveDonorNames() {
+        return donationRepository.findAllActiveDonorNames();
+    }
     
     @Transactional
     public DonationDTO createDonation(DonationCreateDTO createDTO, Long createdBy) {

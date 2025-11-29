@@ -3,6 +3,7 @@ package com.trustapp.controller;
 import com.trustapp.dto.DonationCreateDTO;
 import com.trustapp.dto.DonationDTO;
 import com.trustapp.dto.DonationUpdateDTO;
+import com.trustapp.dto.DonorDropdownDTO;
 import com.trustapp.dto.response.ApiResponse;
 import com.trustapp.dto.response.PageResponseDTO;
 import com.trustapp.service.DonationService;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/donations")
@@ -89,6 +91,12 @@ public class DonationController {
         DonationDTO created = donationService.createDonation(createDTO, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(ApiResponse.success("Donation transaction created successfully", created));
+    }
+
+    @GetMapping("/donor-names")
+    public ResponseEntity<ApiResponse<List<DonorDropdownDTO>>> getAllActiveDonorNames() {
+        List<DonorDropdownDTO> donors = donationService.getAllActiveDonorNames();
+        return ResponseEntity.ok(ApiResponse.success(donors));
     }
 }
 

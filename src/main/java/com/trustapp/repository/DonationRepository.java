@@ -1,6 +1,7 @@
 package com.trustapp.repository;
 
 import com.trustapp.dto.DonationDTO;
+import com.trustapp.dto.DonorDropdownDTO;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -355,6 +356,23 @@ public class DonationRepository {
         }
         
         return query.query(Long.class).single();
+    }
+
+    public List<DonorDropdownDTO> findAllActiveDonorNames() {
+        String sql = """
+            SELECT MIN(d.id) AS id, d.donor_name AS name
+            FROM donations d
+            WHERE d.is_active = TRUE
+            GROUP BY d.donor_name
+            ORDER BY d.donor_name ASC
+            """;
+
+        return jdbcClient.sql(sql)
+                .query((rs, rowNum) -> new DonorDropdownDTO(
+                        rs.getLong("id"),
+                        rs.getString("name")
+                ))
+                .list();
     }
     
     private DonationDTO mapRowToDonationDTO(ResultSet rs) throws SQLException {
