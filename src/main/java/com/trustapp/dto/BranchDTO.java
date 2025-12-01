@@ -23,5 +23,19 @@ public class BranchDTO {
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
+    // User information for createdBy and updatedBy
+    private UserInfo createdBy;
+    private UserInfo updatedBy;
+    
+    // Inner class for user information
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserInfo {
+        private Long id;
+        private String username;
+        private String email;
+    }
 }
 

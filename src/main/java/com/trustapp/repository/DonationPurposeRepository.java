@@ -1,6 +1,7 @@
 package com.trustapp.repository;
 
 import com.trustapp.dto.DonationPurposeDTO;
+import com.trustapp.dto.DonationPurposeDropdownDTO;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -121,6 +122,25 @@ public class DonationPurposeRepository {
             .param(userId)
             .param(id)
             .update();
+    }
+    
+    public List<DonationPurposeDropdownDTO> findAllForDropdown() {
+        String sql = """
+            SELECT id, code, name
+            FROM donation_purposes
+            WHERE is_active = TRUE
+            ORDER BY name ASC
+            """;
+        
+        return jdbcClient.sql(sql)
+            .query((rs, rowNum) -> {
+                DonationPurposeDropdownDTO dto = new DonationPurposeDropdownDTO();
+                dto.setId(rs.getLong("id"));
+                dto.setCode(rs.getString("code"));
+                dto.setName(rs.getString("name"));
+                return dto;
+            })
+            .list();
     }
 }
 

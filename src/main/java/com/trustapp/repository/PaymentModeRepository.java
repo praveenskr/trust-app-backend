@@ -1,6 +1,7 @@
 package com.trustapp.repository;
 
 import com.trustapp.dto.PaymentModeDTO;
+import com.trustapp.dto.PaymentModeDropdownDTO;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -112,6 +113,25 @@ public class PaymentModeRepository {
         return jdbcClient.sql(sql)
             .param(id)
             .update();
+    }
+    
+    public List<PaymentModeDropdownDTO> findAllForDropdown() {
+        String sql = """
+            SELECT id, code, name
+            FROM payment_modes
+            WHERE is_active = TRUE
+            ORDER BY name ASC
+            """;
+        
+        return jdbcClient.sql(sql)
+            .query((rs, rowNum) -> {
+                PaymentModeDropdownDTO dto = new PaymentModeDropdownDTO();
+                dto.setId(rs.getLong("id"));
+                dto.setCode(rs.getString("code"));
+                dto.setName(rs.getString("name"));
+                return dto;
+            })
+            .list();
     }
 }
 

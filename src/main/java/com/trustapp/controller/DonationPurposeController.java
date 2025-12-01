@@ -2,6 +2,7 @@ package com.trustapp.controller;
 
 import com.trustapp.dto.DonationPurposeCreateDTO;
 import com.trustapp.dto.DonationPurposeDTO;
+import com.trustapp.dto.DonationPurposeDropdownDTO;
 import com.trustapp.dto.DonationPurposeUpdateDTO;
 import com.trustapp.dto.response.ApiResponse;
 import com.trustapp.service.DonationPurposeService;
@@ -59,6 +60,12 @@ public class DonationPurposeController {
             @RequestParam(required = false, defaultValue = "1") Long deletedBy) {
         donationPurposeService.deleteDonationPurpose(id, deletedBy);
         return ResponseEntity.ok(ApiResponse.success("Donation purpose deleted successfully"));
+    }
+    
+    @GetMapping("/dropdown")
+    public ResponseEntity<ApiResponse<List<DonationPurposeDropdownDTO>>> getAllDonationPurposesForDropdown() {
+        List<DonationPurposeDropdownDTO> purposes = donationPurposeService.getAllDonationPurposesForDropdown();
+        return ResponseEntity.ok(ApiResponse.success(purposes));
     }
 }
 

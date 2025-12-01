@@ -2,6 +2,7 @@ package com.trustapp.service;
 
 import com.trustapp.dto.ExpenseCategoryCreateDTO;
 import com.trustapp.dto.ExpenseCategoryDTO;
+import com.trustapp.dto.ExpenseCategoryDropdownDTO;
 import com.trustapp.dto.ExpenseCategoryUpdateDTO;
 import com.trustapp.exception.DuplicateResourceException;
 import com.trustapp.exception.ResourceNotFoundException;
@@ -78,6 +79,10 @@ public class ExpenseCategoryService {
             // Convert IllegalStateException to ValidationException for proper error handling
             throw new ValidationException(e.getMessage());
         }
+    }
+    
+    public List<ExpenseCategoryDropdownDTO> getAllExpenseCategoriesForDropdown() {
+        return expenseCategoryRepository.findAllForDropdown();
     }
 }
 

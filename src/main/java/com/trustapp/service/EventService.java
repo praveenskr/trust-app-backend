@@ -2,6 +2,7 @@ package com.trustapp.service;
 
 import com.trustapp.dto.EventCreateDTO;
 import com.trustapp.dto.EventDTO;
+import com.trustapp.dto.EventDropdownDTO;
 import com.trustapp.dto.EventUpdateDTO;
 import com.trustapp.exception.DuplicateResourceException;
 import com.trustapp.exception.ResourceNotFoundException;
@@ -109,6 +110,10 @@ public class EventService {
         
         // Perform soft delete
         eventRepository.delete(id, userId);
+    }
+    
+    public List<EventDropdownDTO> getAllEventsForDropdown(Long branchId) {
+        return eventRepository.findAllForDropdown(branchId);
     }
 }
 

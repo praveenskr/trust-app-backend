@@ -2,6 +2,7 @@ package com.trustapp.service;
 
 import com.trustapp.dto.DonationPurposeCreateDTO;
 import com.trustapp.dto.DonationPurposeDTO;
+import com.trustapp.dto.DonationPurposeDropdownDTO;
 import com.trustapp.dto.DonationPurposeUpdateDTO;
 import com.trustapp.exception.DuplicateResourceException;
 import com.trustapp.exception.ResourceNotFoundException;
@@ -78,6 +79,10 @@ public class DonationPurposeService {
             // Convert IllegalStateException to ValidationException for proper error handling
             throw new ValidationException(e.getMessage());
         }
+    }
+    
+    public List<DonationPurposeDropdownDTO> getAllDonationPurposesForDropdown() {
+        return donationPurposeRepository.findAllForDropdown();
     }
 }
 

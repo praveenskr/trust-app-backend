@@ -2,6 +2,7 @@ package com.trustapp.controller;
 
 import com.trustapp.dto.PaymentModeCreateDTO;
 import com.trustapp.dto.PaymentModeDTO;
+import com.trustapp.dto.PaymentModeDropdownDTO;
 import com.trustapp.dto.PaymentModeUpdateDTO;
 import com.trustapp.dto.response.ApiResponse;
 import com.trustapp.service.PaymentModeService;
@@ -55,6 +56,12 @@ public class PaymentModeController {
     public ResponseEntity<ApiResponse<?>> deletePaymentMode(@PathVariable Long id) {
         paymentModeService.deletePaymentMode(id);
         return ResponseEntity.ok(ApiResponse.success("Payment mode deleted successfully"));
+    }
+    
+    @GetMapping("/dropdown")
+    public ResponseEntity<ApiResponse<List<PaymentModeDropdownDTO>>> getAllPaymentModesForDropdown() {
+        List<PaymentModeDropdownDTO> paymentModes = paymentModeService.getAllPaymentModesForDropdown();
+        return ResponseEntity.ok(ApiResponse.success(paymentModes));
     }
 }
 

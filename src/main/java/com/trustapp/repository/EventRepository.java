@@ -1,6 +1,7 @@
 package com.trustapp.repository;
 
 import com.trustapp.dto.EventDTO;
+import com.trustapp.dto.EventDropdownDTO;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -144,6 +145,36 @@ public class EventRepository {
             .param(userId)
             .param(id)
             .update();
+    }
+    
+    public List<EventDropdownDTO> findAllForDropdown(Long branchId) {
+        StringBuilder sql = new StringBuilder("""
+            SELECT id, code, name
+            FROM events
+            WHERE is_active = TRUE
+            """);
+        
+        List<Object> params = new ArrayList<>();
+        
+        if (branchId != null) {
+            sql.append(" AND branch_id = ?");
+            params.add(branchId);
+        }
+        
+        sql.append(" ORDER BY name ASC");
+        
+        var query = jdbcClient.sql(sql.toString());
+        for (Object param : params) {
+            query = query.param(param);
+        }
+        
+        return query.query((rs, rowNum) -> {
+            EventDropdownDTO dto = new EventDropdownDTO();
+            dto.setId(rs.getLong("id"));
+            dto.setCode(rs.getString("code"));
+            dto.setName(rs.getString("name"));
+            return dto;
+        }).list();
     }
 }
 
