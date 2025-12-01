@@ -342,6 +342,31 @@ public class BranchRepository {
             .single();
     }
     
+    public List<Long> findActiveBranchIdsByIds(List<Long> branchIds) {
+        if (branchIds == null || branchIds.isEmpty()) {
+            return List.of();
+        }
+        
+        StringBuilder sql = new StringBuilder("""
+            SELECT id
+            FROM branches
+            WHERE is_active = TRUE AND id IN (
+            """);
+        
+        for (int i = 0; i < branchIds.size(); i++) {
+            if (i > 0) sql.append(", ");
+            sql.append("?");
+        }
+        sql.append(")");
+        
+        var query = jdbcClient.sql(sql.toString());
+        for (Long branchId : branchIds) {
+            query = query.param(branchId);
+        }
+        
+        return query.query(Long.class).list();
+    }
+    
     public int update(BranchDTO branch, Long userId) {
         String sql = """
             UPDATE branches

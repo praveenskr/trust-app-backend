@@ -1,5 +1,6 @@
 package com.trustapp.repository;
 
+import com.trustapp.dto.BranchAccessDTO;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +13,33 @@ public class UserBranchAccessRepository {
     
     public UserBranchAccessRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
+    }
+    
+    public List<BranchAccessDTO> findByUserId(Long userId) {
+        String sql = """
+            SELECT uba.id, uba.user_id AS userId, uba.branch_id AS branchId,
+                   b.name AS branchName, b.code AS branchCode,
+                   uba.granted_at AS grantedAt
+            FROM user_branch_access uba
+            INNER JOIN branches b ON uba.branch_id = b.id
+            WHERE uba.user_id = ? AND b.is_active = TRUE
+            ORDER BY b.name ASC
+            """;
+        
+        return jdbcClient.sql(sql)
+            .param(userId)
+            .query((rs, rowNum) -> {
+                BranchAccessDTO dto = new BranchAccessDTO();
+                dto.setId(rs.getLong("id"));
+                dto.setUserId(rs.getLong("userId"));
+                dto.setBranchId(rs.getLong("branchId"));
+                dto.setBranchName(rs.getString("branchName"));
+                dto.setBranchCode(rs.getString("branchCode"));
+                dto.setGrantedAt(rs.getTimestamp("grantedAt") != null ? 
+                    rs.getTimestamp("grantedAt").toLocalDateTime() : null);
+                return dto;
+            })
+            .list();
     }
     
     public List<Long> findBranchIdsByUserId(Long userId) {
@@ -62,6 +90,34 @@ public class UserBranchAccessRepository {
             .single();
         
         return count != null && count > 0;
+    }
+    
+    public BranchAccessDTO findAccessByUserIdAndBranchId(Long userId, Long branchId) {
+        String sql = """
+            SELECT uba.id, uba.user_id AS userId, uba.branch_id AS branchId,
+                   b.name AS branchName, b.code AS branchCode,
+                   uba.granted_at AS grantedAt
+            FROM user_branch_access uba
+            INNER JOIN branches b ON uba.branch_id = b.id
+            WHERE uba.user_id = ? AND uba.branch_id = ? AND b.is_active = TRUE
+            """;
+        
+        return jdbcClient.sql(sql)
+            .param(userId)
+            .param(branchId)
+            .query((rs, rowNum) -> {
+                BranchAccessDTO dto = new BranchAccessDTO();
+                dto.setId(rs.getLong("id"));
+                dto.setUserId(rs.getLong("userId"));
+                dto.setBranchId(rs.getLong("branchId"));
+                dto.setBranchName(rs.getString("branchName"));
+                dto.setBranchCode(rs.getString("branchCode"));
+                dto.setGrantedAt(rs.getTimestamp("grantedAt") != null ? 
+                    rs.getTimestamp("grantedAt").toLocalDateTime() : null);
+                return dto;
+            })
+            .optional()
+            .orElse(null);
     }
 }
 
