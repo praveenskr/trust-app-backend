@@ -17,11 +17,14 @@ public class UserBranchAccessRepository {
     
     public List<BranchAccessDTO> findByUserId(Long userId) {
         String sql = """
-            SELECT uba.id, uba.user_id AS userId, uba.branch_id AS branchId,
+            SELECT uba.id, 
+                   u.id AS userInfoId, u.username, u.email, u.full_name AS fullName,
+                   uba.branch_id AS branchId,
                    b.name AS branchName, b.code AS branchCode,
                    uba.granted_at AS grantedAt
             FROM user_branch_access uba
             INNER JOIN branches b ON uba.branch_id = b.id
+            INNER JOIN users u ON uba.user_id = u.id
             WHERE uba.user_id = ? AND b.is_active = TRUE
             ORDER BY b.name ASC
             """;
@@ -31,7 +34,15 @@ public class UserBranchAccessRepository {
             .query((rs, rowNum) -> {
                 BranchAccessDTO dto = new BranchAccessDTO();
                 dto.setId(rs.getLong("id"));
-                dto.setUserId(rs.getLong("userId"));
+                
+                // Create UserInfo object
+                BranchAccessDTO.UserInfo userInfo = new BranchAccessDTO.UserInfo();
+                userInfo.setId(rs.getLong("userInfoId"));
+                userInfo.setUsername(rs.getString("username"));
+                userInfo.setEmail(rs.getString("email"));
+                userInfo.setFullName(rs.getString("fullName"));
+                dto.setUser(userInfo);
+                
                 dto.setBranchId(rs.getLong("branchId"));
                 dto.setBranchName(rs.getString("branchName"));
                 dto.setBranchCode(rs.getString("branchCode"));
@@ -94,11 +105,14 @@ public class UserBranchAccessRepository {
     
     public BranchAccessDTO findAccessByUserIdAndBranchId(Long userId, Long branchId) {
         String sql = """
-            SELECT uba.id, uba.user_id AS userId, uba.branch_id AS branchId,
+            SELECT uba.id,
+                   u.id AS userInfoId, u.username, u.email, u.full_name AS fullName,
+                   uba.branch_id AS branchId,
                    b.name AS branchName, b.code AS branchCode,
                    uba.granted_at AS grantedAt
             FROM user_branch_access uba
             INNER JOIN branches b ON uba.branch_id = b.id
+            INNER JOIN users u ON uba.user_id = u.id
             WHERE uba.user_id = ? AND uba.branch_id = ? AND b.is_active = TRUE
             """;
         
@@ -108,7 +122,15 @@ public class UserBranchAccessRepository {
             .query((rs, rowNum) -> {
                 BranchAccessDTO dto = new BranchAccessDTO();
                 dto.setId(rs.getLong("id"));
-                dto.setUserId(rs.getLong("userId"));
+                
+                // Create UserInfo object
+                BranchAccessDTO.UserInfo userInfo = new BranchAccessDTO.UserInfo();
+                userInfo.setId(rs.getLong("userInfoId"));
+                userInfo.setUsername(rs.getString("username"));
+                userInfo.setEmail(rs.getString("email"));
+                userInfo.setFullName(rs.getString("fullName"));
+                dto.setUser(userInfo);
+                
                 dto.setBranchId(rs.getLong("branchId"));
                 dto.setBranchName(rs.getString("branchName"));
                 dto.setBranchCode(rs.getString("branchCode"));
