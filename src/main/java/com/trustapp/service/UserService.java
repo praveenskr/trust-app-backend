@@ -179,6 +179,10 @@ public class UserService {
         return user;
     }
     
+    public List<UserDropdownDTO> getAllActiveUsersForDropdown() {
+        return userRepository.findAllActiveForDropdown();
+    }
+    
     private void validateRoles(List<Long> roleIds) {
         if (roleIds == null || roleIds.isEmpty()) {
             throw new ValidationException("At least one role must be assigned");

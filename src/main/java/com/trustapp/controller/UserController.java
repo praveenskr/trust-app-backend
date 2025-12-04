@@ -21,7 +21,6 @@ public class UserController {
     }
     
     @GetMapping
-    // @PreAuthorize("hasAuthority('USER_VIEW')")
     public ResponseEntity<ApiResponse<List<UserDTO>>> getAllUsers(
             @RequestParam(defaultValue = "false") boolean includeInactive) {
         List<UserDTO> users = userService.getAllUsers(includeInactive);
@@ -29,14 +28,12 @@ public class UserController {
     }
     
     @GetMapping("/{id}")
-    // @PreAuthorize("hasAuthority('USER_VIEW')")
     public ResponseEntity<ApiResponse<UserDTO>> getUserById(@PathVariable Long id) {
         UserDTO user = userService.getUserById(id);
         return ResponseEntity.ok(ApiResponse.success(user));
     }
     
     @PostMapping
-    // @PreAuthorize("hasAuthority('USER_CREATE')")
     public ResponseEntity<ApiResponse<UserDTO>> createUser(
             @Valid @RequestBody UserCreateDTO userCreateDTO,
             @RequestParam(required = false, defaultValue = "1") Long createdBy) {
@@ -46,7 +43,6 @@ public class UserController {
     }
     
     @PutMapping("/{id}")
-    // @PreAuthorize("hasAuthority('USER_UPDATE')")
     public ResponseEntity<ApiResponse<UserDTO>> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UserUpdateDTO userUpdateDTO,
@@ -56,14 +52,12 @@ public class UserController {
     }
     
     @DeleteMapping("/{id}")
-    // @PreAuthorize("hasAuthority('USER_DELETE')")
     public ResponseEntity<ApiResponse<?>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok(ApiResponse.success("User deleted successfully"));
     }
     
     @PostMapping("/{id}/change-password")
-    // @PreAuthorize("hasAuthority('USER_UPDATE')")
     public ResponseEntity<ApiResponse<?>> changePassword(
             @PathVariable Long id,
             @Valid @RequestBody PasswordChangeDTO passwordChangeDTO) {
@@ -72,12 +66,17 @@ public class UserController {
     }
     
     @PostMapping("/{id}/unlock")
-    // @PreAuthorize("hasAuthority('USER_UPDATE')")
     public ResponseEntity<ApiResponse<?>> unlockUser(
             @PathVariable Long id,
             @RequestParam(required = false, defaultValue = "1") Long unlockedBy) {
         userService.unlockUser(id, unlockedBy);
         return ResponseEntity.ok(ApiResponse.success("User unlocked successfully"));
+    }
+    
+    @GetMapping("/dropdown")
+    public ResponseEntity<ApiResponse<List<UserDropdownDTO>>> getAllActiveUsersForDropdown() {
+        List<UserDropdownDTO> users = userService.getAllActiveUsersForDropdown();
+        return ResponseEntity.ok(ApiResponse.success(users));
     }
 }
 
