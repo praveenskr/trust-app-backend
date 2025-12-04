@@ -84,9 +84,21 @@ public class BranchController {
         return ResponseEntity.ok(ApiResponse.success(statistics));
     }
     
+    /**
+     * Returns all active branches for dropdowns (no user access filtering).
+     */
     @GetMapping("/dropdown")
-    public ResponseEntity<ApiResponse<List<BranchDropdownDTO>>> getAllBranchesForDropdown() {
-        List<BranchDropdownDTO> branches = branchService.getAllBranchesForDropdown();
+    public ResponseEntity<ApiResponse<List<BranchDropdownDTO>>> getAllActiveBranchesForDropdown() {
+        List<BranchDropdownDTO> branches = branchService.getAllActiveBranchesForDropdown();
+        return ResponseEntity.ok(ApiResponse.success(branches));
+    }
+    
+    /**
+     * Returns only branches that the current authenticated user has access to.
+     */
+    @GetMapping("/user-access-dropdown")
+    public ResponseEntity<ApiResponse<List<BranchDropdownDTO>>> getUserAccessibleBranchesForDropdown() {
+        List<BranchDropdownDTO> branches = branchService.getUserAccessibleBranchesForDropdown();
         return ResponseEntity.ok(ApiResponse.success(branches));
     }
 }

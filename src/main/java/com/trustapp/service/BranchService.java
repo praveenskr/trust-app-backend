@@ -238,7 +238,22 @@ public class BranchService {
         return branchRepository.getBranchStatistics(id, fromDate, toDate);
     }
     
-    public List<BranchDropdownDTO> getAllBranchesForDropdown() {
+    /**
+     * Returns all active branches for dropdowns, without applying any user access checks.
+     * Intended for admin-style screens like User Branch Access where all branches
+     * need to be visible for assignment.
+     */
+    public List<BranchDropdownDTO> getAllActiveBranchesForDropdown() {
+        // Passing null for accessibleBranchIds means "no branch access filter" in repository
+        return branchRepository.findAllForDropdown(null);
+    }
+    
+    /**
+     * Returns only the branches that the current user has access to.
+     * This is used on transaction and reporting screens where users should
+     * see only their permitted branches.
+     */
+    public List<BranchDropdownDTO> getUserAccessibleBranchesForDropdown() {
         UserDTO currentUser = authenticationService.getCurrentUser();
         Long userId = currentUser.getId();
         

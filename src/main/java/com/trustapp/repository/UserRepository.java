@@ -1,6 +1,7 @@
 package com.trustapp.repository;
 
 import com.trustapp.dto.UserDTO;
+import com.trustapp.dto.UserDropdownDTO;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -229,6 +230,19 @@ public class UserRepository {
         return jdbcClient.sql(sql)
             .param(id)
             .update();
+    }
+    
+    public List<UserDropdownDTO> findAllActiveForDropdown() {
+        String sql = """
+            SELECT id, username, email, full_name AS fullName
+            FROM users
+            WHERE is_active = TRUE
+            ORDER BY full_name ASC
+            """;
+        
+        return jdbcClient.sql(sql)
+            .query(UserDropdownDTO.class)
+            .list();
     }
 }
 
